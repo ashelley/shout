@@ -1,5 +1,5 @@
-$(function() {
-	var socket = io();
+$(document).ready(function() {
+	var socket = ChromeApp.emitter;
 	var commands = [
 		"/close",
 		"/connect",

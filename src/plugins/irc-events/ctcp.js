@@ -1,4 +1,4 @@
-var pkg = require(process.cwd() + "/package.json");
+var pkg = require("../../../package.json");
 
 module.exports = function(irc, network) {
 	irc.on("message", function(data) {

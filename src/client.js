@@ -50,6 +50,43 @@ var inputs = [
 	"whois"
 ];
 
+var plugins = {
+	ctcp: require('./plugins/irc-events/ctcp'),
+	error: require('./plugins/irc-events/error'),
+	join: require('./plugins/irc-events/join'),
+	kick: require('./plugins/irc-events/kick'),
+	mode: require('./plugins/irc-events/mode'),
+	motd: require('./plugins/irc-events/motd'),
+	message: require('./plugins/irc-events/message'),
+	link: require('./plugins/irc-events/link'),
+	names: require('./plugins/irc-events/names'),
+	nick: require('./plugins/irc-events/nick'),
+	notice: require('./plugins/irc-events/notice'),
+	part: require('./plugins/irc-events/part'),
+	quit: require('./plugins/irc-events/quit'),
+	topic: require('./plugins/irc-events/topic'),
+	welcome: require('./plugins/irc-events/welcome'),
+	whois: require('./plugins/irc-events/whois')
+}
+
+var inputsPlugins = {
+	"action": require('./plugins/inputs/action'),
+	"connect": require('./plugins/inputs/connect'),
+	"invite": require('./plugins/inputs/invite'),
+	"join": require('./plugins/inputs/join'),
+	"kick": require('./plugins/inputs/kick'),
+	"mode": require('./plugins/inputs/mode'),
+	"msg": require('./plugins/inputs/msg'),
+	"nick": require('./plugins/inputs/nick'),
+	"notice": require('./plugins/inputs/notice'),
+	"part": require('./plugins/inputs/part'),
+	"quit": require('./plugins/inputs/quit'),
+	"raw": require('./plugins/inputs/raw'),
+	"services": require('./plugins/inputs/services'),
+	"topic": require('./plugins/inputs/topic'),
+	"whois": require('./plugins/inputs/whois')
+}
+
 function Client(sockets, name, config) {
 	_.merge(this, {
 		activeChannel: -1,
@@ -137,6 +174,8 @@ Client.prototype.connect = function(args) {
 		}
 	}
 
+	console.log("connecting to server", server);
+
 	var stream = args.tls ? tls.connect(server) : net.connect(server);
 
 	stream.on("error", function(e) {
@@ -185,11 +224,17 @@ Client.prototype.connect = function(args) {
 	});
 
 	events.forEach(function(plugin) {
+		/*
 		var path = "./plugins/irc-events/" + plugin;
 		require(path).apply(client, [
 			irc,
 			network
 		]);
+		*/
+		plugins[plugin].apply(client, [
+			irc,
+			network
+		]);		
 	});
 
 	irc.once("welcome", function() {
@@ -229,10 +274,12 @@ Client.prototype.input = function(data) {
 	}
 	var args = text.split(" ");
 	var cmd = args.shift().replace("/", "").toLowerCase();
+
 	_.each(inputs, function(plugin) {
 		try {
-			var path = "./plugins/inputs/" + plugin;
-			var fn = require(path);
+			//var path = "./plugins/inputs/" + plugin;
+			//var fn = require(path);
+			fn = inputsPlugins[plugin];
 			fn.apply(client, [
 				target.network,
 				target.chan,
@@ -240,7 +287,8 @@ Client.prototype.input = function(data) {
 				args
 			]);
 		} catch (e) {
-			console.log(path + ": " + e);
+			//console.log(path + ": " + e);
+			console.log(plugin + ": " + e);
 		}
 	});
 };
