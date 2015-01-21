@@ -16,8 +16,7 @@
     "test": "NODE_ENV=test mocha test/**/*.js"
   },
   "browser": {
-    "net": "chrome-net",
-    "./plugins/irc-events/ctcp": "../../src/plugins/irc-events/ctcp"
+    "net": "chrome-net"
   },  
   "keywords": [
     "browser",
